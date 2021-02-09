@@ -1,22 +1,35 @@
 package ru.killo200.spring.security.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.User;
 
+import javax.sql.DataSource;
+
 @EnableWebSecurity
 public class MySecurityConfig extends WebSecurityConfigurerAdapter {
 
-    //Кнфиг для аутентификации пользователя
+    DataSource dataSource;
+
+    @Autowired
+    public MySecurityConfig(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    //Конфиг для аутентификации пользователя
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        User.UserBuilder userBuilder = User.withDefaultPasswordEncoder();
 
-        auth.inMemoryAuthentication().withUser(userBuilder.username("Alex").password("alex").roles("EMPLOYEE"));
-        auth.inMemoryAuthentication().withUser(userBuilder.username("Vova").password("vova").roles("HR"));
-        auth.inMemoryAuthentication().withUser(userBuilder.username("Denis").password("denis").roles("MANAGER", "HR"));
+        auth.jdbcAuthentication().dataSource(dataSource);
+
+//        User.UserBuilder userBuilder = User.withDefaultPasswordEncoder();
+//
+//        auth.inMemoryAuthentication().withUser(userBuilder.username("Alex").password("alex").roles("EMPLOYEE"));
+//        auth.inMemoryAuthentication().withUser(userBuilder.username("Vova").password("vova").roles("HR"));
+//        auth.inMemoryAuthentication().withUser(userBuilder.username("Denis").password("denis").roles("MANAGER", "HR"));
     }
 
     //Конфиг для авторизации пользователя
